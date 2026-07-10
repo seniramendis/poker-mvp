@@ -30,24 +30,29 @@ export default function GameView() {
   const botFaceDown = !state.revealBot;
 
   return (
-    <main className="relative w-full h-screen overflow-hidden select-none">
+    <main className="relative w-full h-[100dvh] overflow-hidden select-none">
       {/* 3D Background */}
       <PokerTable />
 
       {/* HUD */}
-      <div className="absolute top-0 w-full p-6 flex justify-between items-start text-white z-10 pointer-events-none">
-        <div>
-          <h1 className="text-2xl font-bold tracking-widest drop-shadow-md">POKER LK HUB</h1>
-          <p className="text-xs text-amber-200/70 tracking-wide mt-1 uppercase">Heads-Up Texas Hold&apos;em</p>
+      <div className="safe-top safe-x absolute top-0 w-full flex justify-between items-start text-white z-10 pointer-events-none">
+        <div className="min-w-0">
+          <h1 className="hud-title text-lg sm:text-2xl font-bold tracking-widest drop-shadow-md truncate">
+            POKER LK HUB
+          </h1>
+          <p className="hud-sub block text-[10px] sm:text-xs text-amber-200/70 tracking-wide mt-0.5 sm:mt-1 uppercase">
+            Heads-Up Texas Hold&apos;em
+          </p>
         </div>
-        <div className="flex flex-col items-end gap-2 pointer-events-auto">
-          <div className="bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+        <div className="flex flex-col items-end gap-1 sm:gap-2 pointer-events-auto shrink-0">
+          <div className="bg-black/50 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-sm flex items-center gap-1.5 sm:gap-2 text-xs sm:text-base whitespace-nowrap">
             <ChipStack amount={state.playerChips} small />
-            <span>Balance: {state.playerChips.toLocaleString()} LKR</span>
+            <span className="hidden sm:inline">Balance: {state.playerChips.toLocaleString()} LKR</span>
+            <span className="sm:hidden">{state.playerChips.toLocaleString()}</span>
           </div>
           <button
             onClick={resetTable}
-            className="text-xs text-white/50 hover:text-white/90 transition-colors underline underline-offset-2"
+            className="text-[10px] sm:text-xs text-white/50 hover:text-white/90 transition-colors underline underline-offset-2"
           >
             Reset table
           </button>
@@ -55,8 +60,15 @@ export default function GameView() {
       </div>
 
       {/* Bot row */}
-      <div className="absolute top-24 w-full flex flex-col items-center gap-2 z-10">
-        <div className={`flex items-center gap-2 text-white/80 text-sm ${state.turn === 'bot' && !state.handOver ? 'turn-indicator' : ''}`}>
+      <div
+        className="seat-row absolute w-full flex flex-col items-center z-10"
+        style={{ top: 'clamp(52px, 13vh, 108px)', gap: 'var(--gap-xs)' }}
+      >
+        <div
+          className={`seat-label flex items-center gap-1.5 sm:gap-2 text-white/80 text-xs sm:text-sm ${
+            state.turn === 'bot' && !state.handOver ? 'turn-indicator' : ''
+          }`}
+        >
           <span className="font-semibold tracking-wide">DEALER BOT</span>
           <span className="text-amber-200/70">{state.botChips.toLocaleString()} LKR</span>
         </div>
@@ -66,39 +78,49 @@ export default function GameView() {
       </div>
 
       {/* Center: community cards + pot */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 z-10 pointer-events-none">
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
+        style={{ gap: 'clamp(10px, 2.4vh, 20px)' }}
+      >
         {state.communityCards.length > 0 && (
           <CommunityCards cards={state.communityCards} winningCards={winningCards} />
         )}
         {state.pot > 0 && <PotDisplay pot={state.pot} />}
 
         {state.handOver && state.winReason && (
-          <div className="winner-banner absolute top-[-40px] left-1/2 -translate-x-1/2 bg-black/70 border border-amber-400/40 text-amber-200 px-5 py-2 rounded-full text-sm font-semibold backdrop-blur-sm whitespace-nowrap">
+          <div className="winner-banner absolute top-[-40px] left-1/2 -translate-x-1/2 bg-black/70 border border-amber-400/40 text-amber-200 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-sm whitespace-nowrap max-w-[90vw] truncate">
             {state.winReason}
           </div>
         )}
       </div>
 
       {/* Player row */}
-      <div className="absolute bottom-40 w-full flex flex-col items-center gap-2 z-10">
+      <div
+        className="seat-row absolute w-full flex flex-col items-center z-10"
+        style={{ bottom: 'clamp(108px, 23vh, 176px)', gap: 'var(--gap-xs)' }}
+      >
         {state.playerHand.length > 0 && (
           <Hand cards={state.playerHand} winningCards={winningCards} size="lg" />
         )}
-        <div className={`flex items-center gap-2 text-white/80 text-sm ${state.turn === 'player' && !state.handOver ? 'turn-indicator' : ''}`}>
+        <div
+          className={`seat-label flex items-center gap-1.5 sm:gap-2 text-white/80 text-xs sm:text-sm ${
+            state.turn === 'player' && !state.handOver ? 'turn-indicator' : ''
+          }`}
+        >
           <span className="font-semibold tracking-wide">YOU</span>
           <span className="text-amber-200/70">Bet: {state.playerBet}</span>
         </div>
       </div>
 
       {/* Message log */}
-      <div className="absolute bottom-4 left-4 z-10 text-[11px] text-white/40 max-w-xs pointer-events-none leading-tight fade-in">
+      <div className="hidden sm:block absolute bottom-4 left-4 z-10 text-[11px] text-white/40 max-w-xs pointer-events-none leading-tight fade-in">
         {state.log.slice(0, 3).map((entry, i) => (
           <div key={i} className={i === 0 ? 'text-white/70' : ''}>{entry}</div>
         ))}
       </div>
 
       {/* Bottom controls */}
-      <div className="absolute bottom-6 w-full flex flex-col items-center gap-4 z-10">
+      <div className="safe-bottom absolute bottom-0 w-full flex flex-col items-center gap-2 sm:gap-4 z-10 px-3">
         {state.handOver ? (
           <button
             onClick={dealHand}

@@ -23,6 +23,32 @@ body {
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif;
   overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* Fluid sizing tokens                                                */
+/* Cards/chips scale smoothly between phone and desktop viewports    */
+/* instead of jumping at fixed breakpoints.                          */
+/* ---------------------------------------------------------------- */
+
+:root {
+  --card-w-sm: clamp(30px, 8vw, 46px);
+  --card-h-sm: clamp(42px, 11.2vw, 64px);
+  --card-w-md: clamp(38px, 9.6vw, 62px);
+  --card-h-md: clamp(54px, 13.6vw, 88px);
+  --card-w-lg: clamp(46px, 11.6vw, 78px);
+  --card-h-lg: clamp(65px, 16.4vw, 110px);
+  --gap-xs: clamp(4px, 1.4vw, 8px);
+  --gap-sm: clamp(6px, 2vw, 12px);
+  --hud-pad: clamp(0.6rem, 3vw, 1.5rem);
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-w-md: clamp(34px, 11vw, 50px);
+    --card-h-md: clamp(48px, 15.4vw, 71px);
+  }
 }
 
 /* ---------------------------------------------------------------- */
@@ -105,12 +131,17 @@ body {
   font-weight: 700;
 }
 
-.card-corner-tl { top: 5px; left: 5px; }
-.card-corner-br { bottom: 5px; right: 5px; transform: rotate(180deg); }
+.card-corner-tl { top: 4%; left: 8%; }
+.card-corner-br { bottom: 4%; right: 8%; transform: rotate(180deg); }
 
-.card-rank { font-size: 15px; }
-.card-suit-mini { font-size: 12px; margin-top: -1px; }
-.card-suit-center { font-size: 28px; opacity: 0.9; }
+.card-rank { font-size: clamp(9px, 2.6vw, 15px); }
+.card-suit-mini { font-size: clamp(7px, 2.1vw, 12px); margin-top: -1px; }
+.card-suit-center { font-size: clamp(16px, 4.8vw, 28px); opacity: 0.9; }
+
+/* Fluid card size classes (replace fixed px sizing from JS) */
+.card-size-sm { width: var(--card-w-sm); height: var(--card-h-sm); }
+.card-size-md { width: var(--card-w-md); height: var(--card-h-md); }
+.card-size-lg { width: var(--card-w-lg); height: var(--card-h-lg); }
 
 .card-highlight .card-face {
   animation: cardGlow 1.1s ease-in-out infinite;
@@ -122,11 +153,12 @@ body {
 }
 
 .community-slot {
-  width: 62px;
-  height: 88px;
+  width: var(--card-w-md);
+  height: var(--card-h-md);
   border-radius: 7px;
   border: 2px dashed rgba(212, 175, 55, 0.25);
   background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
 }
 
 /* ---------------------------------------------------------------- */
@@ -172,14 +204,15 @@ body {
 /* ---------------------------------------------------------------- */
 
 .action-btn {
-  padding: 0.7rem 1.6rem;
+  padding: clamp(0.5rem, 1.8vw, 0.7rem) clamp(0.9rem, 4vw, 1.6rem);
   border-radius: 9999px;
   font-weight: 800;
   letter-spacing: 0.04em;
-  font-size: 0.85rem;
+  font-size: clamp(0.68rem, 2.6vw, 0.85rem);
   color: white;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  white-space: nowrap;
 }
 
 .action-btn:hover:not(:disabled) {
@@ -235,4 +268,38 @@ body {
 @keyframes bannerIn {
   0% { opacity: 0; transform: translate(-50%, -20px) scale(0.85); }
   100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* ---------------------------------------------------------------- */
+/* Mobile / safe-area responsiveness                                 */
+/* ---------------------------------------------------------------- */
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 0.75rem);
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
+
+.safe-x {
+  padding-left: max(env(safe-area-inset-left), var(--hud-pad));
+  padding-right: max(env(safe-area-inset-right), var(--hud-pad));
+}
+
+/* Small phones (portrait) - tighten everything further */
+@media (max-width: 400px) {
+  .action-bar-slider { width: 6.5rem; }
+  .hud-title { font-size: 1rem; }
+}
+
+@media (max-width: 360px) {
+  .hud-sub { display: none; }
+}
+
+/* Short viewports (landscape phones) - compress vertical rhythm */
+@media (max-height: 480px) and (orientation: landscape) {
+  .seat-row { gap: 2px !important; }
+  .seat-label { font-size: 0.65rem; }
+  .action-btn { padding-top: 0.4rem; padding-bottom: 0.4rem; }
 }

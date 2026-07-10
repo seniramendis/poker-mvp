@@ -2,17 +2,19 @@
 
 export function ChipStack({ amount, small = false }) {
   const chips = Math.min(6, Math.max(1, Math.round(Math.log2(Math.max(amount, 1) / 40 + 1))));
+  const size = small ? 'clamp(16px, 4.4vw, 22px)' : 'clamp(20px, 5.6vw, 30px)';
+  const step = small ? 'clamp(2px, 0.6vw, 3px)' : 'clamp(3px, 0.8vw, 4px)';
   return (
     <div className="flex items-end gap-1">
-      <div className="relative" style={{ width: small ? 22 : 30, height: small ? 22 : 30 }}>
+      <div className="relative" style={{ width: size, height: size }}>
         {Array.from({ length: chips }).map((_, i) => (
           <div
             key={i}
             className="chip-disc"
             style={{
-              bottom: i * (small ? 3 : 4),
-              width: small ? 22 : 30,
-              height: small ? 22 : 30,
+              bottom: `calc(${step} * ${i})`,
+              width: size,
+              height: size,
             }}
           />
         ))}

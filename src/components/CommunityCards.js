@@ -7,7 +7,7 @@ export default function CommunityCards({ cards, winningCards = [] }) {
   const slots = Array.from({ length: 5 });
 
   return (
-    <div className="flex gap-2">
+    <div className="flex" style={{ gap: 'var(--gap-xs)' }}>
       {slots.map((_, i) => {
         const card = cards[i];
         if (!card) {

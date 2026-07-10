@@ -16,15 +16,13 @@ export default function PlayingCard({
   highlight = false,
   size = 'md',
 }) {
-  const dims = SIZES[size] || SIZES.md;
+  const sizeClass = SIZE_CLASSES[size] || SIZE_CLASSES.md;
   const isRed = card && RED_SUITS.has(card.suit);
 
   return (
     <div
-      className={`card-flip-wrap ${highlight ? 'card-highlight' : ''}`}
+      className={`card-flip-wrap ${sizeClass} ${highlight ? 'card-highlight' : ''}`}
       style={{
-        width: dims.w,
-        height: dims.h,
         animationDelay: `${dealDelay}ms`,
       }}
     >
@@ -55,8 +53,8 @@ export default function PlayingCard({
   );
 }
 
-const SIZES = {
-  sm: { w: 46, h: 64 },
-  md: { w: 62, h: 88 },
-  lg: { w: 78, h: 110 },
+const SIZE_CLASSES = {
+  sm: 'card-size-sm',
+  md: 'card-size-md',
+  lg: 'card-size-lg',
 };
