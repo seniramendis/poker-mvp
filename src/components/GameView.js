@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import PokerTable from './PokerTable';
 import Hand from './Hand';
 import CommunityCards from './CommunityCards';
@@ -36,10 +37,18 @@ export default function GameView() {
 
       {/* HUD */}
       <div className="safe-top safe-x absolute top-0 w-full flex justify-between items-start text-white z-10 pointer-events-none">
-        <div className="min-w-0">
-          <h1 className="hud-title text-lg sm:text-2xl font-bold tracking-widest drop-shadow-md truncate">
-            POKER LK HUB
-          </h1>
+        <div className="min-w-0 pointer-events-auto">
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+          >
+            <span className="text-amber-200/70 group-hover:-translate-x-0.5 transition-transform">
+              &lsaquo;
+            </span>
+            <h1 className="hud-title text-lg sm:text-2xl font-bold tracking-widest drop-shadow-md truncate">
+              POKER LK HUB
+            </h1>
+          </Link>
           <p className="hud-sub block text-[10px] sm:text-xs text-amber-200/70 tracking-wide mt-0.5 sm:mt-1 uppercase">
             Heads-Up Texas Hold&apos;em
           </p>
@@ -50,12 +59,21 @@ export default function GameView() {
             <span className="hidden sm:inline">Balance: {state.playerChips.toLocaleString()} LKR</span>
             <span className="sm:hidden">{state.playerChips.toLocaleString()}</span>
           </div>
-          <button
-            onClick={resetTable}
-            className="text-[10px] sm:text-xs text-white/50 hover:text-white/90 transition-colors underline underline-offset-2"
-          >
-            Reset table
-          </button>
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs">
+            <Link
+              href="/"
+              className="text-white/50 hover:text-white/90 transition-colors underline underline-offset-2"
+            >
+              Home
+            </Link>
+            <span className="text-white/20">&middot;</span>
+            <button
+              onClick={resetTable}
+              className="text-white/50 hover:text-white/90 transition-colors underline underline-offset-2"
+            >
+              Reset table
+            </button>
+          </div>
         </div>
       </div>
 
