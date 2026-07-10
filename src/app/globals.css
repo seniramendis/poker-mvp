@@ -161,6 +161,17 @@ body {
   flex-shrink: 0;
 }
 
+.chip-disc-static {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--gold) 0deg 20deg, #7a1f1f 20deg 40deg);
+  border: 2px solid var(--cream);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
 /* ---------------------------------------------------------------- */
 /* Chips + pot                                                       */
 /* ---------------------------------------------------------------- */
