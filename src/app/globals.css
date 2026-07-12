@@ -356,6 +356,51 @@ body {
 }
 
 /* ---------------------------------------------------------------- */
+/* Omee (trump picker + games nav dropdown)                          */
+/* ---------------------------------------------------------------- */
+
+.suit-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: clamp(48px, 12vw, 60px);
+  height: clamp(48px, 12vw, 60px);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.suit-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.suit-btn-symbol {
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  line-height: 1;
+}
+
+.suit-btn-red .suit-btn-symbol { color: var(--red-suit); }
+.suit-btn-black .suit-btn-symbol { color: var(--cream); }
+
+.suit-btn-count {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-dropdown-panel {
+  animation: dropdownIn 160ms ease-out;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------------- */
 /* Mobile / safe-area responsiveness                                 */
 /* ---------------------------------------------------------------- */
 
