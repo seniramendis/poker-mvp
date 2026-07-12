@@ -8,28 +8,34 @@ import { SUIT_SYMBOL, SUIT_NAME, SUITS, legalPlays } from '../lib/omee';
 
 const SUITS_RED = new Set(['H', 'D']);
 
-function BotFan({ count }) {
+// Bot hands are shown as a small fanned stack rather than one card per
+// remaining card — beyond MAX_VISIBLE cards we just bump a "+N" badge so
+// the fan never grows wide/tall enough to overflow a small screen.
+function BotFan({ count, direction = 'horizontal', maxVisible = 5 }) {
+  const visible = Math.min(count, maxVisible);
+  const extra = count - visible;
+  const isVertical = direction === 'vertical';
+
   return (
-    <div className="flex -space-x-4 sm:-space-x-5">
-      {Array.from({ length: count }).map((_, i) => (
+    <div className={`flex items-center ${isVertical ? 'flex-col -space-y-9 sm:-space-y-11' : '-space-x-4 sm:-space-x-5'}`}>
+      {Array.from({ length: visible }).map((_, i) => (
         <PlayingCard key={i} card={null} faceDown size="sm" dealDelay={i * 60} />
       ))}
+      {extra > 0 && <span className={`bot-fan-badge ${isVertical ? 'mt-1' : 'ml-1'}`}>+{extra}</span>}
     </div>
   );
 }
 
 function SeatLabel({ name, active }) {
   return (
-    <div className={`seat-label flex items-center gap-1.5 text-white/80 text-xs sm:text-sm ${active ? 'turn-indicator' : ''}`}>
+    <div className={`seat-label flex items-center gap-1.5 text-white/80 text-[11px] sm:text-sm ${active ? 'turn-indicator' : ''}`}>
       <span className="font-semibold tracking-wide">{name}</span>
     </div>
   );
 }
 
 function TrickCard({ play }) {
-  if (!play) {
-    return <div className="community-slot" style={{ width: 'var(--card-w-sm)', height: 'var(--card-h-sm)' }} />;
-  }
+  if (!play) return <div className="trick-slot community-slot" />;
   return <PlayingCard card={play.card} size="sm" dealDelay={0} />;
 }
 
@@ -50,6 +56,7 @@ export default function OmeeGameView() {
 
   const trickBySeat = Object.fromEntries(state.currentTrick.map((p) => [p.seat, p]));
   const southFirstFour = isTrumpSelect && state.trumpChooser === 'south' ? state.hands.south : null;
+  const southCount = state.hands.south.length;
 
   return (
     <main className="relative w-full h-[100dvh] overflow-hidden select-none">
@@ -68,7 +75,7 @@ export default function OmeeGameView() {
         </div>
 
         <div className="flex flex-col items-end gap-1 sm:gap-2 pointer-events-auto shrink-0">
-          <div className="bg-black/50 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-sm flex items-center gap-2 sm:gap-3 text-xs sm:text-sm whitespace-nowrap">
+          <div className="bg-black/50 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-sm flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm whitespace-nowrap">
             <span className="text-emerald-300 font-bold">US {state.tokens.us}</span>
             <span className="text-white/30">/</span>
             <span className="text-rose-300 font-bold">THEM {state.tokens.them}</span>
@@ -86,32 +93,42 @@ export default function OmeeGameView() {
       </div>
 
       {/* North (partner) */}
-      <div className="absolute w-full flex flex-col items-center z-10" style={{ top: 'clamp(58px, 12vh, 100px)', gap: 'var(--gap-xs)' }}>
+      <div
+        className="absolute w-full flex flex-col items-center z-10"
+        style={{ top: 'clamp(52px, 11vh, 96px)', gap: 'var(--gap-xs)' }}
+      >
         <SeatLabel name="PARTNER" active={isPlaying && state.turn === 'north'} />
-        <BotFan count={state.hands.north.length} />
+        <BotFan count={state.hands.north.length} direction="horizontal" maxVisible={5} />
       </div>
 
       {/* West */}
       <div
         className="absolute flex flex-col items-center z-10"
-        style={{ left: 'clamp(8px, 4vw, 28px)', top: '50%', transform: 'translateY(-50%)', gap: 'var(--gap-xs)' }}
+        style={{ left: 'clamp(4px, 2.5vw, 18px)', top: '50%', transform: 'translateY(-50%)', gap: 'var(--gap-xs)' }}
       >
         <SeatLabel name="WEST" active={isPlaying && state.turn === 'west'} />
-        <BotFan count={state.hands.west.length} />
+        <BotFan count={state.hands.west.length} direction="vertical" maxVisible={4} />
       </div>
 
       {/* East */}
       <div
         className="absolute flex flex-col items-center z-10"
-        style={{ right: 'clamp(8px, 4vw, 28px)', top: '50%', transform: 'translateY(-50%)', gap: 'var(--gap-xs)' }}
+        style={{ right: 'clamp(4px, 2.5vw, 18px)', top: '50%', transform: 'translateY(-50%)', gap: 'var(--gap-xs)' }}
       >
         <SeatLabel name="EAST" active={isPlaying && state.turn === 'east'} />
-        <BotFan count={state.hands.east.length} />
+        <BotFan count={state.hands.east.length} direction="vertical" maxVisible={4} />
       </div>
 
       {/* Center: current trick */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none" style={{ gap: 8 }}>
-        <div className="grid grid-cols-3 grid-rows-3 gap-1 place-items-center" style={{ width: 140, height: 110 }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none" style={{ gap: 6 }}>
+        <div
+          className="grid grid-cols-3 grid-rows-3 place-items-center"
+          style={{
+            width: 'clamp(112px, 30vw, 168px)',
+            height: 'clamp(94px, 25vw, 138px)',
+            gap: 'clamp(2px, 1vw, 6px)',
+          }}
+        >
           <div />
           <div className="row-start-1 col-start-2">
             <TrickCard play={trickBySeat.north} />
@@ -132,13 +149,13 @@ export default function OmeeGameView() {
         </div>
 
         {!isIdle && (
-          <div className="text-white/50 text-[11px] sm:text-xs bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
+          <div className="text-white/50 text-[10px] sm:text-xs bg-black/40 px-2.5 sm:px-3 py-1 rounded-full backdrop-blur-sm whitespace-nowrap">
             Trick {Math.min(state.trickCount + 1, 8)} of 8 &middot; Won: {state.tricksWon.us}&ndash;{state.tricksWon.them}
           </div>
         )}
 
         {(isHandEnd || isMatchEnd) && state.lastHandResult && (
-          <div className="winner-banner pointer-events-auto absolute top-[-56px] left-1/2 -translate-x-1/2 bg-black/70 border border-amber-400/40 text-amber-200 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-sm whitespace-nowrap max-w-[90vw] truncate">
+          <div className="winner-banner pointer-events-auto absolute top-[-52px] sm:top-[-56px] left-1/2 -translate-x-1/2 bg-black/70 border border-amber-400/40 text-amber-200 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold backdrop-blur-sm whitespace-nowrap max-w-[92vw] truncate">
             {isMatchEnd
               ? `${state.matchWinner === 'us' ? 'You & Partner' : 'West & East'} win the match! (${state.lastHandResult.reason})`
               : `${state.lastHandResult.team === 'us' ? 'You & Partner' : state.lastHandResult.team === 'them' ? 'West & East' : 'Push'}${state.lastHandResult.tokens ? ` +${state.lastHandResult.tokens} token${state.lastHandResult.tokens === 1 ? '' : 's'}` : ''} &mdash; ${state.lastHandResult.reason}`}
@@ -146,20 +163,30 @@ export default function OmeeGameView() {
         )}
       </div>
 
-      {/* South (you) */}
-      <div className="seat-row absolute w-full flex flex-col items-center z-10" style={{ bottom: 'clamp(96px, 20vh, 150px)', gap: 'var(--gap-xs)' }}>
-        <div className="flex" style={{ gap: 'var(--gap-xs)' }}>
+      {/* South (you) — fanned with overlap so it never overflows/clips off-screen */}
+      <div
+        className="seat-row absolute w-full flex flex-col items-center z-10"
+        style={{ bottom: 'clamp(90px, 19vh, 148px)', gap: 'var(--gap-xs)' }}
+      >
+        <div className="flex justify-center px-2" style={{ maxWidth: '100vw' }}>
           {state.hands.south.map((card, i) => {
             const isLegal = legalCardIds.has(card.id);
+            const sizeVar = southCount > 6 ? '--card-w-md' : '--card-w-lg';
             return (
               <button
                 key={card.id}
                 onClick={() => southTurn && isLegal && playCard(card)}
                 disabled={!southTurn || !isLegal}
-                className={`transition-transform ${southTurn && isLegal ? 'hover:-translate-y-2 cursor-pointer' : 'opacity-60 cursor-default'}`}
-                style={{ background: 'none', border: 'none', padding: 0 }}
+                className={`relative transition-transform ${southTurn && isLegal ? 'hover:-translate-y-3 hover:z-20 cursor-pointer' : 'opacity-60 cursor-default'}`}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  marginLeft: i === 0 ? 0 : `calc(var(${sizeVar}) * -0.42)`,
+                  zIndex: southTurn && isLegal ? i : 0,
+                }}
               >
-                <PlayingCard card={card} size="lg" dealDelay={i * 90} />
+                <PlayingCard card={card} size={southCount > 6 ? 'md' : 'lg'} dealDelay={i * 90} />
               </button>
             );
           })}
@@ -183,9 +210,9 @@ export default function OmeeGameView() {
         )}
 
         {isTrumpSelect && southFirstFour && (
-          <div className="pointer-events-auto flex flex-col items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10">
-            <span className="text-white/70 text-xs sm:text-sm">Choose trump suit</span>
-            <div className="flex gap-2">
+          <div className="pointer-events-auto flex flex-col items-center gap-2 bg-black/60 backdrop-blur-md px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-white/10">
+            <span className="text-white/70 text-[11px] sm:text-sm">Choose trump suit</span>
+            <div className="flex gap-1.5 sm:gap-2">
               {SUITS.map((s) => {
                 const count = southFirstFour.filter((c) => c.suit === s).length;
                 const red = SUITS_RED.has(s);
