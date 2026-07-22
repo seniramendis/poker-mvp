@@ -1,9 +1,11 @@
 'use client';
 
 import PlayingCard from './PlayingCard';
+import { dealOffsetFor } from '../lib/seatLayout';
 
-export default function Hand({ cards, faceDown = false, size = 'md', winningCards = [] }) {
+export default function Hand({ cards, faceDown = false, size = 'md', winningCards = [], seatId = 'human' }) {
   const winningIds = new Set(winningCards.map((c) => c.id));
+  const { x, y } = dealOffsetFor(seatId);
   return (
     <div className="flex" style={{ gap: 'var(--gap-xs)' }}>
       {cards.map((card, i) => (
@@ -14,6 +16,8 @@ export default function Hand({ cards, faceDown = false, size = 'md', winningCard
           dealDelay={i * 140}
           size={size}
           highlight={winningIds.has(card.id)}
+          fromX={x}
+          fromY={y}
         />
       ))}
     </div>

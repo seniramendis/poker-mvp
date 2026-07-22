@@ -7,11 +7,12 @@ const STARTING_CHIPS = 5000;
 const SMALL_BLIND = 50;
 const BIG_BLIND = 100;
 
-// Table size: you + this many bots. Bump/trim this to resize the table —
-// everything else (seating, blinds, side pots, layout) adapts automatically.
-const NUM_BOTS = 4;
+// Table size: you + this many bots, seated alongside a permanent dealer.
+// The seat layout (src/lib/seatLayout.js) is tuned for a 4-player table
+// (you + 3 bots) fanned out beneath the dealer, so change both together.
+const NUM_BOTS = 3;
 
-const BOT_NAMES = ['Kamal', 'Nimal', 'Sanduni', 'Ishara', 'Ruwan', 'Dilani', 'Chamara', 'Harsha'];
+const BOT_NAMES = ['Jax', 'Mira', 'Leo', 'Nova', 'Remy', 'Skye', 'Theo', 'Vale'];
 // Mix of difficulties so the table isn't uniformly easy or brutal.
 const BOT_DIFFICULTIES = ['medium', 'hard', 'medium', 'hard', 'medium', 'hard'];
 

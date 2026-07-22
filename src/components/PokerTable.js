@@ -16,6 +16,7 @@ export default function PokerTable() {
       <div className="poker-table-oval">
         <div className="poker-table-gold">
           <div className="poker-table-felt">
+            <div className="poker-table-spotlight" />
             <div className="poker-table-felt-shine" />
             <div className="poker-table-felt-vignette" />
             <span className="poker-table-watermark">POKER LK HUB</span>

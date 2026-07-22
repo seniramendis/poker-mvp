@@ -1,11 +1,14 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Hand from './Hand';
 
 export default function Seat({
   player,
+  seatId,
   isTurn,
   isHuman = false,
+  isDealerButton = false,
   cardsFaceDown = true,
   winningCards = [],
   handName = null,
@@ -16,9 +19,21 @@ export default function Seat({
 
   return (
     <div className={`seat-block flex flex-col items-center ${player.folded ? 'opacity-40' : ''}`}>
-      {player.hand.length > 0 && (
-        <Hand cards={player.hand} faceDown={cardsFaceDown} winningCards={winningCards} size={size} />
-      )}
+      <div className="relative">
+        {isTurn && <motion.div className="seat-turn-ring" layoutId="turn-ring" />}
+        <div className={`seat-pod ${isTurn ? 'seat-pod-active' : ''} ${isWinner ? 'seat-pod-winner' : ''}`}>
+          {player.hand.length > 0 && (
+            <Hand
+              cards={player.hand}
+              faceDown={cardsFaceDown}
+              winningCards={winningCards}
+              size={size}
+              seatId={seatId}
+            />
+          )}
+        </div>
+        {isDealerButton && <span className="dealer-button-chip">D</span>}
+      </div>
       <div
         className={`seat-label mt-1 flex flex-col items-center gap-0.5 text-white/80 text-[10px] sm:text-xs ${
           isTurn ? 'turn-indicator' : ''

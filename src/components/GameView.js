@@ -1,13 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import confetti from 'canvas-confetti';
 import PokerTable from './PokerTable';
+import Dealer from './Dealer';
+import BetChip from './BetChip';
 import Seat from './Seat';
 import CommunityCards from './CommunityCards';
 import ActionBar from './ActionBar';
 import { PotDisplay, ChipStack } from './ChipStack';
 import { usePokerGame } from '../lib/usePokerGame';
+import { BOT_SEAT_CSS, HUMAN_SEAT_CSS } from '../lib/seatLayout';
 
 export default function GameView() {
   const { state, dealHand, resetTable, playerAction, PHASES } = usePokerGame();
@@ -18,6 +22,91 @@ export default function GameView() {
   const isPlayerTurn = state.activeId === 'human' && !state.handOver;
   const toCall = human ? Math.max(0, state.currentBet - human.bet) : 0;
   const canAct = isPlayerTurn && human && human.chips > 0;
+
+  const dealerButtonId = state.players[state.dealerIndex]?.id ?? null;
+
+  // --- Dealer "actively dealing" pulse: true briefly whenever a new street
+  // (or a fresh hand) starts handing out cards. ---
+  const [isDealing, setIsDealing] = useState(false);
+  const prevPhaseRef = useRef(state.phase);
+  useEffect(() => {
+    if (state.phase !== prevPhaseRef.current) {
+      prevPhaseRef.current = state.phase;
+      if (state.phase !== PHASES.SHOWDOWN && state.phase !== PHASES.IDLE) {
+        const onTimer = setTimeout(() => setIsDealing(true), 0);
+        const offTimer = setTimeout(() => setIsDealing(false), 900);
+        return () => {
+          clearTimeout(onTimer);
+          clearTimeout(offTimer);
+        };
+      }
+    }
+  }, [state.phase, PHASES.SHOWDOWN, PHASES.IDLE]);
+
+  // --- Riffle-shuffle: fires the moment a brand-new hand starts, right
+  // before the dealer pitches out hole cards. ---
+  const [isShuffling, setIsShuffling] = useState(false);
+  const prevPhaseForShuffleRef = useRef(state.phase);
+  useEffect(() => {
+    const cameFrom = prevPhaseForShuffleRef.current;
+    prevPhaseForShuffleRef.current = state.phase;
+    if (
+      state.phase === PHASES.PREFLOP &&
+      (cameFrom === PHASES.IDLE || cameFrom === PHASES.SHOWDOWN)
+    ) {
+      const onTimer = setTimeout(() => setIsShuffling(true), 0);
+      const offTimer = setTimeout(() => setIsShuffling(false), 550);
+      return () => {
+        clearTimeout(onTimer);
+        clearTimeout(offTimer);
+      };
+    }
+  }, [state.phase, PHASES.PREFLOP, PHASES.IDLE, PHASES.SHOWDOWN]);
+
+  // --- Chips flying from a seat to the pot whenever that seat's bet grows ---
+  const [flyingChips, setFlyingChips] = useState([]);
+  const prevBetsRef = useRef({});
+  useEffect(() => {
+    const additions = [];
+    for (const p of state.players) {
+      const prev = prevBetsRef.current[p.id] ?? 0;
+      if (p.bet > prev) {
+        additions.push({ key: `${p.id}-${p.bet}-${Date.now()}`, fromId: p.id });
+      }
+      prevBetsRef.current[p.id] = p.bet;
+    }
+    if (additions.length) {
+      const t = setTimeout(() => setFlyingChips((f) => [...f, ...additions]), 0);
+      return () => clearTimeout(t);
+    }
+  }, [state.players]);
+
+  const removeChip = (key) => setFlyingChips((f) => f.filter((c) => c.key !== key));
+
+  // --- Winner celebration ---
+  const prevHandOverRef = useRef(state.handOver);
+  useEffect(() => {
+    if (state.handOver && !prevHandOverRef.current) {
+      if (state.winnerIds.includes('human')) {
+        confetti({
+          particleCount: 140,
+          spread: 80,
+          startVelocity: 45,
+          origin: { x: 0.5, y: 0.72 },
+          colors: ['#d4af37', '#f4d675', '#faf6ec', '#18b364'],
+        });
+      } else if (state.winnerIds.length > 0) {
+        confetti({
+          particleCount: 46,
+          spread: 55,
+          startVelocity: 28,
+          origin: { x: 0.5, y: 0.5 },
+          colors: ['#d4af37', '#f4d675'],
+        });
+      }
+    }
+    prevHandOverRef.current = state.handOver;
+  }, [state.handOver, state.winnerIds]);
 
   const showdownById = useMemo(() => {
     const map = new Map();
@@ -35,11 +124,11 @@ export default function GameView() {
 
   return (
     <main className="relative w-full h-[100dvh] overflow-hidden select-none">
-      {/* 3D Background */}
+      {/* Table felt */}
       <PokerTable />
 
       {/* HUD */}
-      <div className="safe-top safe-x absolute top-0 w-full flex justify-between items-start text-white z-10 pointer-events-none">
+      <div className="safe-top safe-x absolute top-0 w-full flex justify-between items-start text-white z-30 pointer-events-none">
         <div className="min-w-0 pointer-events-auto">
           <Link
             href="/"
@@ -80,28 +169,34 @@ export default function GameView() {
         </div>
       </div>
 
-      {/* Bot seats */}
-      <div
-        className="seat-row absolute w-full flex flex-wrap justify-center items-start z-10 px-2"
-        style={{ top: 'clamp(50px, 12vh, 100px)', gap: 'clamp(8px, 3vw, 28px)' }}
-      >
-        {bots.map((bot) => {
-          const sd = showdownById.get(bot.id);
-          const revealed = state.handOver && !bot.folded && !bot.out;
-          return (
+      {/* Permanent dealer, head of the table */}
+      <Dealer isDealing={isDealing} isShuffling={isShuffling} cardsLeft={state.deck.length} />
+
+      {/* Bot seats, fanned beneath the dealer */}
+      {bots.map((bot, i) => {
+        const sd = showdownById.get(bot.id);
+        const revealed = state.handOver && !bot.folded && !bot.out;
+        const pos = BOT_SEAT_CSS[i] ?? BOT_SEAT_CSS[BOT_SEAT_CSS.length - 1];
+        return (
+          <div
+            key={bot.id}
+            className="absolute z-10"
+            style={{ ...pos, transform: 'translate(-50%, 0)' }}
+          >
             <Seat
-              key={bot.id}
               player={bot}
+              seatId={bot.id}
               isTurn={state.activeId === bot.id && !state.handOver}
+              isDealerButton={dealerButtonId === bot.id}
               cardsFaceDown={!revealed}
               winningCards={winningCards}
               handName={revealed ? sd?.handName ?? null : null}
               isWinner={!!sd?.isWinner}
               size="sm"
             />
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
 
       {/* Center: community cards + pot + winner banner */}
       <div
@@ -120,16 +215,22 @@ export default function GameView() {
         {state.pot > 0 && <PotDisplay pot={state.pot} />}
       </div>
 
+      {/* Chips flying from seats to the pot */}
+      <div className="absolute inset-0 z-20 pointer-events-none">
+        {flyingChips.map((c) => (
+          <BetChip key={c.key} fromId={c.fromId} onDone={() => removeChip(c.key)} />
+        ))}
+      </div>
+
       {/* Player seat */}
-      <div
-        className="seat-row absolute w-full flex flex-col items-center z-10"
-        style={{ bottom: 'clamp(108px, 23vh, 176px)', gap: 'var(--gap-xs)' }}
-      >
+      <div className="absolute z-10" style={{ ...HUMAN_SEAT_CSS, transform: 'translate(-50%, 0)' }}>
         {human && (
           <Seat
             player={human}
+            seatId="human"
             isHuman
             isTurn={isPlayerTurn}
+            isDealerButton={dealerButtonId === 'human'}
             cardsFaceDown={false}
             winningCards={winningCards}
             handName={state.handOver && !human.folded ? showdownById.get('human')?.handName ?? null : null}
@@ -147,7 +248,7 @@ export default function GameView() {
       </div>
 
       {/* Bottom controls */}
-      <div className="safe-bottom absolute bottom-0 w-full flex flex-col items-center gap-2 sm:gap-4 z-10 px-3">
+      <div className="safe-bottom absolute bottom-0 w-full flex flex-col items-center gap-2 sm:gap-4 z-30 px-3">
         {state.handOver ? (
           <button
             onClick={dealHand}
