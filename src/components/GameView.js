@@ -198,10 +198,13 @@ export default function GameView() {
         );
       })}
 
-      {/* Center: community cards + pot + winner banner */}
+      {/* Center: community cards + pot + winner banner - pinned a fixed
+          distance below the dealer/bot row (not centered against the full
+          viewport), so it never drifts down into the human hand on short
+          or wide viewports. */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
-        style={{ gap: 'clamp(8px, 2vh, 16px)' }}
+        className="absolute left-1/2 flex flex-col items-center z-10 pointer-events-none"
+        style={{ top: 'clamp(92px, 27vh, 176px)', transform: 'translateX(-50%)', gap: 'clamp(8px, 2vh, 16px)' }}
       >
         {state.handOver && state.winReason && (
           <div className="winner-banner bg-black/75 border border-amber-400/50 text-amber-200 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-lg font-bold backdrop-blur-sm whitespace-nowrap max-w-[92vw] truncate shadow-lg">

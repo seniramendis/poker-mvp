@@ -33,12 +33,12 @@ body {
 /* ---------------------------------------------------------------- */
 
 :root {
-  --card-w-sm: clamp(38px, 9.6vw, 52px);
-  --card-h-sm: clamp(54px, 13.4vw, 73px);
-  --card-w-md: clamp(42px, 10.6vw, 68px);
-  --card-h-md: clamp(59px, 15vw, 96px);
-  --card-w-lg: clamp(50px, 12.6vw, 84px);
-  --card-h-lg: clamp(70px, 17.8vw, 118px);
+  --card-w-sm: clamp(42px, 9.6vw, 52px);
+  --card-h-sm: clamp(59px, 13.4vw, 73px);
+  --card-w-md: clamp(46px, 10.6vw, 68px);
+  --card-h-md: clamp(64px, 15vw, 96px);
+  --card-w-lg: clamp(54px, 12.6vw, 84px);
+  --card-h-lg: clamp(75px, 17.8vw, 118px);
   --gap-xs: clamp(4px, 1.4vw, 8px);
   --gap-sm: clamp(6px, 2vw, 12px);
   --hud-pad: clamp(0.6rem, 3vw, 1.5rem);
@@ -46,8 +46,21 @@ body {
 
 @media (max-width: 480px) {
   :root {
-    --card-w-md: clamp(34px, 11vw, 50px);
-    --card-h-md: clamp(48px, 15.4vw, 71px);
+    --card-w-md: clamp(40px, 11vw, 50px);
+    --card-h-md: clamp(56px, 15.4vw, 71px);
+  }
+}
+
+/* Short viewports (compact browser windows, small laptops, tablets in
+   landscape) - shrink hole/community cards so the hand never has to
+   overlap the board just to fit on screen. */
+@media (max-height: 700px) {
+  :root {
+    --card-w-lg: clamp(46px, 9.6vw, 62px);
+    --card-h-lg: clamp(64px, 13.4vw, 87px);
+    --card-w-md: clamp(38px, 8.4vw, 52px);
+    --card-h-md: clamp(53px, 11.8vw, 73px);
+    --gap-xs: clamp(3px, 1vw, 6px);
   }
 }
 
@@ -326,7 +339,7 @@ body {
 .poker-table-oval {
   position: relative;
   width: clamp(280px, 84vw, 1080px);
-  height: clamp(150px, 40vh, 500px);
+  height: clamp(130px, 32vh, 400px);
   border-radius: 50%;
   background: linear-gradient(160deg, #55341c 0%, #2e1c0f 60%, #20140a 100%);
   box-shadow:
@@ -466,10 +479,12 @@ body {
 /* ---------------------------------------------------------------- */
 
 .seat-pod {
+  position: relative;
+  z-index: 2;
   padding: clamp(4px, 1.2vw, 8px);
   border-radius: 14px;
-  background: rgba(3, 12, 8, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: rgba(2, 10, 6, 0.55);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   transition: background 220ms ease, box-shadow 220ms ease;
 }
 
@@ -495,6 +510,20 @@ body {
 @keyframes ringPulse {
   0%, 100% { opacity: 0.35; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.025); }
+}
+
+.seat-bet {
+  animation: potPulse 220ms ease-out;
+}
+
+.seat-bet-amount {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: clamp(8px, 2.2vw, 10.5px);
+  letter-spacing: 0.04em;
+  color: var(--gold-bright);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
 }
 
 .dealer-button-chip {

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Hand from './Hand';
+import { ChipStack } from './ChipStack';
 
 export default function Seat({
   player,
@@ -34,6 +35,15 @@ export default function Seat({
         </div>
         {isDealerButton && <span className="dealer-button-chip">D</span>}
       </div>
+
+      {/* Live bet, shown as an actual chip stack on the felt (not just a number) */}
+      {!player.out && player.bet > 0 && (
+        <div className="seat-bet flex flex-col items-center gap-0.5 mt-1.5">
+          <ChipStack amount={player.bet} small />
+          <span className="seat-bet-amount">{player.bet.toLocaleString()}</span>
+        </div>
+      )}
+
       <div
         className={`seat-label mt-1 flex flex-col items-center gap-0.5 text-white/80 text-[10px] sm:text-xs ${
           isTurn ? 'turn-indicator' : ''
@@ -45,9 +55,6 @@ export default function Seat({
         <span className="text-amber-200/70">
           {player.out ? 'OUT' : `${player.chips.toLocaleString()}`}
         </span>
-        {!player.out && player.bet > 0 && (
-          <span className="text-white/50">Bet: {player.bet}</span>
-        )}
         {player.allIn && !player.out && <span className="text-red-300/80 font-bold">ALL-IN</span>}
       </div>
       {handName && (

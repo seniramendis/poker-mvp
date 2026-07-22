@@ -15,7 +15,7 @@ export const BOT_SEAT_CSS = [
 
 export const DEALER_SEAT_CSS = { top: 'clamp(4px, 2.6vh, 22px)', left: '50%' };
 
-export const HUMAN_SEAT_CSS = { bottom: 'clamp(108px, 23vh, 176px)', left: '50%' };
+export const HUMAN_SEAT_CSS = { bottom: 'clamp(56px, 13vh, 100px)', left: '50%' };
 
 // Plain numeric percentages of the viewport, used only for animating chips
 // flying from a seat toward the pot. Keep roughly in sync with the CSS
@@ -25,7 +25,7 @@ export const SEAT_PCT = {
   'bot-0': { top: 15, left: 22 },
   'bot-1': { top: 15, left: 78 },
   'bot-2': { top: 33, left: 9 },
-  human: { top: 80, left: 50 },
+  human: { top: 86, left: 50 },
 };
 
 export const POT_PCT = { top: 47, left: 50 };
