@@ -88,7 +88,8 @@ function evaluateFive(cards) {
   const countsPattern = groups.map((g) => g.count).join('');
 
   if (straightHigh && isFlush) {
-    return { score: 8, name: 'Straight Flush', tiebreak: [straightHigh] };
+    const name = straightHigh === 14 ? 'Royal Flush' : 'Straight Flush';
+    return { score: 8, name, tiebreak: [straightHigh] };
   }
   if (countsPattern.startsWith('4')) {
     return {

@@ -2,7 +2,7 @@ import GameView from '../../components/GameView';
 
 export const metadata = {
   title: 'Play — Poker Lk Hub',
-  description: 'Heads-up Texas Hold\u2019em against the dealer bot.',
+  description: 'Texas Hold\u2019em against four AI opponents.',
 };
 
 export default function PlayPage() {

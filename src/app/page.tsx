@@ -9,7 +9,7 @@ export const metadata = {
 const STEPS = [
   {
     title: 'Sit down',
-    body: 'Jump straight into a heads-up table against the dealer bot \u2014 no waiting on other players.',
+    body: 'Sit down at a full table against four AI opponents \u2014 no waiting on other players.',
   },
   {
     title: 'Play a hand',
@@ -23,7 +23,7 @@ const STEPS = [
 
 const STAKES = [
   { label: 'Starting balance', value: '5,000 LKR' },
-  { label: 'Table type', value: 'Heads-Up Hold\u2019em' },
+  { label: 'Table type', value: '5-Max Hold\u2019em' },
   { label: 'Reset anytime', value: 'One tap' },
 ];
 
@@ -41,14 +41,14 @@ export default function Home() {
         }}
       >
         <p className="text-amber-200/70 text-xs sm:text-sm tracking-[0.35em] uppercase mb-4 fade-in">
-          Heads-Up Texas Hold&apos;em
+          5-Max Texas Hold&apos;em
         </p>
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl mx-auto fade-in">
           Learn &amp; play poker,
           <br className="hidden sm:block" /> Sri Lankan style.
         </h1>
         <p className="mt-5 text-white/60 text-sm sm:text-base max-w-xl mx-auto fade-in">
-          Practice your game against a dealer bot in LKR chips — free, fast, and
+          Practice your game against four AI opponents in LKR chips — free, fast, and
           built to feel like sitting down at a real table.
         </p>
 
